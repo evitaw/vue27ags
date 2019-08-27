@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <p>
+        {{message}}
+        <input type="text" v-model="message">
+        <button @click="say">Say</button>
+        </p>
+
+        <p>
+        <input type="text" v-model="password">
+        <div v-if="isValidPassword">VALID</div>
+        <div v-if="!isValidPassword">INVALID</div>
+        </p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script>
+        new Vue({
+            el: '#app', 
+            data(){
+                return {
+                    message: 'Jean',
+                    password: '123'
+                }
+            },
+
+            methods: {
+                say() {
+                    window.alert('Britney ' + this.message + ' Spears')
+                }
+            },
+
+            computed: {
+                isValidPassword() {
+                    return this.password === '123'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
