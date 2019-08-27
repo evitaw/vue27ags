@@ -1,48 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </head>
+
 <body>
-    <div id="app">
-        <p>
-        {{message}}
-        <input type="text" v-model="message">
-        <button @click="say">Say</button>
+    <div id="app" class="container mt-5">
+        <form @submit.prevent="add">
+            <div class="form-group">Nama: <input type="text" v-model="name">
+                <div class="alert alert-danger" v-if="this.errors.name">{{this.errors.name}}</div>
+            </div>
+            <div class="form-group">Harga: <input type="number" v-model="price">
+                <div class="alert alert-danger" v-if="this.errors.price">{{this.errors.price}}</div>
+            </div>
+            <div class="form-group"><button type="submit" class="btn btn-primary">Add</button></div>
+        </form>
+
+        <input type="text" v-model="search" />
+
+        <table class="table">
+            <thead>
+                <tr bgcolor="pink">
+                    <th><strong>No.</strong></th>
+                    <th><strong>Nama</strong></th>
+                    <th><strong>Harga</strong></th>
+                    <th><strong>Aksi</strong></th>
+                </tr>
+            </thead>
+            <tr v-for="(item, index) in items" :key="item.id">
+                <td>{{ ++index }}</td>
+                <td>{{item.name}}</td>
+                <td>Rp {{item.price}}</td>
+                <td><button @click="remove(item)" class="btn btn-primary">&times;</button></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><strong>Total</strong></td>
+                <td><strong>Rp {{total}}</strong></td>
+                <td></td>
+            </tr>
+        </table>
         </p>
 
-        <p>
-        <input type="text" v-model="password">
-        <div v-if="isValidPassword">VALID</div>
-        <div v-if="!isValidPassword">INVALID</div>
-        </p>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="vue.js"></script>
     <script>
         new Vue({
-            el: '#app', 
-            data(){
+            el: '#app',
+            data() {
                 return {
-                    message: 'Jean',
-                    password: '123'
+                    name: '',
+                    price: '',
+                    errors: {},
+                    search: [],
+                    items: [
+                        { id: 1, name: 'Indomi', price: 2000 },
+                        { id: 2, name: 'Popmi', price: 5000 },
+                        { id: 3, name: 'Kopi', price: 5000 },
+                        { id: 4, name: 'Susu Ultra', price: 5000 }
+                    ]
                 }
             },
-
             methods: {
-                say() {
-                    window.alert('Britney ' + this.message + ' Spears')
+                add() {
+                    this.errors = {}
+
+                    if (this.name.trim() === '') {
+                        this.errors.name = 'Nama harus diisi'
+                    }
+                    if (this.price < 1) {
+                        this.errors.price = 'Harga harus lebih dari 0'
+                    }
+
+                    if (Object.values(this.errors).length > 0) {
+                        return
+                    }
+
+                    this.items.push({
+                        id: Date.now(),
+                        name: this.name,
+                        price: this.price
+                    })
+                    this.name = '',
+                        this.price = ''
+                },
+                remove(item) {
+                    const index = this.items.indexOf(item)
+                    this.items.splice(index, 1)
+                },
+                customFilter: function (item) {
+                    return item.name.indexOf(this.search) != -1
+                        || item.price.indexOf(this.search) != -1
+                        ;
                 }
             },
-
             computed: {
-                isValidPassword() {
-                    return this.password === '123'
+                total() {
+                    return this.items
+                        .map(item => Number(item.price))
+                        .reduce((prev, current) => prev + current, 0)
                 }
             }
         })
     </script>
 </body>
+
 </html>
