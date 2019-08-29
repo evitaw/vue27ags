@@ -22,9 +22,24 @@
             </div>
             <div class="form-group"><button type="submit" class="btn btn-primary">Add</button></div>
         </form>
-<p>
-        <input type="text" v-model="search" placeholder="Cari (case sensitive)"/>
-    </p>
+        <p>
+            <form @submit.prevent="search" class="py-5">
+                <table>
+                    <tr>
+                        <td>Cari</td>
+                        <td>:</td>
+                        <td><input type="text" v-model="search" placeholder="case sensitive" /></td>
+                    </tr>
+                    <tr>
+                        <td>Urut berdasarkan</td>
+                        <td>:</td>
+                        <td><button class="btn btn-primary" @click="sortBy('price', 'asc')">Lowest Price</button>
+                            <button class="btn btn-primary" @click="sortBy('price', 'desc')">Highest Price</button></td>
+                    </tr>
+                </table>
+            </form>
+
+        </p>
 
         <table class="table">
             <thead>
@@ -34,7 +49,7 @@
                     <th><strong>Aksi</strong></th>
                 </tr>
             </thead>
-            <tr v-for="item in items | filterBy customFilter">
+            <tr v-for="item in originalItems | filterBy customFilter">
                 <td>{{item.name}}</td>
                 <td>Rp {{item.price}}</td>
                 <td><button @click="remove(item)" class="btn btn-primary">&times;</button></td>
@@ -50,17 +65,26 @@
     </div>
     <script src="vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js"></script>
-    
+
     <script>
         new Vue({
             el: '#app',
+            async mounted() {
+                this.items = this.originalItems
+                this.loading = true
+                // const response = await axios.get('http://cfc40bbc.ngrok.io/api/items')
+                // this.items = response.data
+                this.loading = false
+            },
             data() {
                 return {
+                    loading: false,
                     name: '',
                     price: '',
                     errors: {},
                     search: [],
-                    items: [
+                    items: [],
+                    originalItems: [
                         { id: 1, name: 'Indomi', price: 2000 },
                         { id: 2, name: 'Popmi', price: 5000 },
                         { id: 3, name: 'Kopi', price: 5000 },
@@ -95,9 +119,16 @@
                     const index = this.items.indexOf(item)
                     this.items.splice(index, 1)
                 },
-                customFilter: function(item) {
-          return item.name.indexOf(this.search) != -1
-      }
+                customFilter: function (item) {
+                    return item.name.indexOf(this.search) != -1
+                },
+                sortBy(type, orderBy = 'asc') {
+                    this.items = this.originalItems.sort((a, b) => {
+                        return (orderBy === 'asc')
+                            ? a[type] - b[type]
+                            : b[type] - a[type]
+                    })
+                },
             },
             computed: {
                 total() {
